@@ -30,7 +30,7 @@ echo         PM    WM  MM    MM  MW    MM  MM    MM    MM  MM  MW    MM
 echo          PMMMP7R  BM    MM   PMMP7MM  WM     PRMMMP   MM   RMMP7MM
 timeout 15 >nul
 :mainmenu
-mode con lines=3 cols=50 && cls
+mode con lines=2 cols=50 && cls
 %cECHO% {0A}&& if exist "%PROJECTS%\1" (set /p "PRO=. Please Enter Project Name: " && move "%PROJECTS%\1" "%PROJECTS%\_!PRO: =_!" >nul && set "WORK=%PROJECTS%\_!PRO: =_!") else (if exist "%PROJECTS%\_*" (for /f "tokens=*" %%a in ('dir /b /a %PROJECTS%\_*') do (set "WORK=%PROJECTS%\%%a")))
 for /d %%i in ("%WORK%") do (set "PROJECTTITLE=%%~ni") && title Project: !PROJECTTITLE:~1!
 if not exist "%ROOT%\_work" (mklink /d "%ROOT%\_work" "%WORK%" >nul 2>&1) else (if exist "%ROOT%\_work" (rmdir /s /q "%ROOT%\_work" && mklink /d "%ROOT%\_work" "%WORK%" >nul 2>&1))
