@@ -200,7 +200,7 @@ if exist "%SOURCE%\optics*" (%cECHO% {0A}{\n}{\n} Converting Sparse Images Into 
 if exist "%SOURCE%\prism*" ("%BIN%\simg2img" "%SOURCE%\prism.img" "%SOURCE%\prism.raw" && del "%SOURCE%\prism.img")
 if exist "%SOURCE%\super*" ("%BIN%\simg2img" "%SOURCE%\super.img" "%SOURCE%\super.raw" && del "%SOURCE%\super.img")
 %cECHO% {0A}{\n}{\n} Extract Odm + Product + System + Vendor Images From Super Image... && "%WSL%" "$PWD/bin/linux/lpunpack" "$FORWSL/source/super.raw" "$FORWSL/source/"
-"%WSL%" "$PWD/bin/linux/lpdump" -a "$FORWSL/source/super.raw" ^>^>"$FORWSL/config/super" && del "%SOURCE%\super*" && echo.
+"%WSL%" "$PWD/bin/linux/lpdump" --slot=0 "$FORWSL/source/super.raw" ^>^>"$FORWSL/config/super" && del "%SOURCE%\super*" && echo.
 if exist "%SOURCE%\*.ext" (ren "%SOURCE%\*.ext" "*.img")
 if not exist "%ODM%" (mkdir "%ODM%" && fsutil file setCaseSensitiveinfo "%ODM%" enable >nul)
 if exist "%SOURCE%\odm*" (%cECHO% {0A}{\n} Extract Odm To ROM Folder... && "%BIN%\imgextractor" "%SOURCE%\odm.img" "%ROM%" >nul)
@@ -286,7 +286,7 @@ for /f "skip=11 tokens=3" %%i in (%CONFIG%\odm.txt) do (if not defined ODMINODES
 for /f "skip=40 tokens=4" %%i in (%CONFIG%\odm.txt) do (if not defined ODMHASH set "ODMHASH=-S %%i")
 for /f "skip=41 tokens=3" %%i in (%CONFIG%\odm.txt) do (if not defined ODMSIZE set "ODMSIZE=%%i")
 %cECHO% {0A}{\n}&& if exist "%CONFIG%\%nODM%_fs*" ("%BIN%\fspatch" "%ODM%" "%CONFIG%\%nODM%_fs_config.txt") && echo.
-if exist "%ODM%" ("%WSL%" "$PWD/bin/linux/mkuserimg_mke2fs.sh" "$FORWSL/rom/%nODM%" "$FORWSL/build/%nODM%.img" %EXT% %nODM% !ODMSIZE! %JOURNAL% %TIMESTAMP% -C "$FORWSL/config/%nODM%_fs_config.txt" -D "$FORWSL/rom/%nODM%" %ODMLABEL% %ODMMOUNT% %ODMINODES% %ODMUUID% %ODMHASH% "$FORWSL/config/%nODM%_file_contexts.txt")
+if exist "%ODM%" ("%WSL%" "$PWD/bin/linux/mkuserimg_mke2fs.sh" "$FORWSL/rom/%nODM%" "$FORWSL/build/%nODM%.img" %EXT% %nODM% !ODMSIZE! %JOURNAL% %TIMESTAMP% -C "$FORWSL/config/%nODM%_fs_config.txt" -D "$FORWSL/rom/%nODM%" %ODMLABEL% %ODMMOUNT% %ODMINODES% %ODMUUID% %ODMHASH% "$FORWSL/config/%nODM%_file_contexts.txt" "$FORWSL/config/file_contexts.txt")
 %cECHO% {06}&& timeout 15 && goto rebuildmenu
 :optics
 mode con lines=24 cols=76 && cls
@@ -301,7 +301,7 @@ for /f "skip=11 tokens=3" %%i in (%CONFIG%\optics.txt) do (if not defined OPTICS
 for /f "skip=40 tokens=4" %%i in (%CONFIG%\optics.txt) do (if not defined OPTICSHASH set "OPTICSHASH=-S %%i")
 for /f "skip=41 tokens=3" %%i in (%CONFIG%\optics.txt) do (if not defined OPTICSSIZE set "OPTICSSIZE=%%i")
 %cECHO% {0A}{\n}&& if exist "%CONFIG%\%nOPTICS%_fs*" ("%BIN%\fspatch" "%OPTICS%" "%CONFIG%\%nOPTICS%_fs_config.txt") && echo.
-if exist "%OPTICS%" ("%WSL%" "$PWD/bin/linux/mkuserimg_mke2fs.sh" "$FORWSL/rom/%nOPTICS%" "$FORWSL/build/%nOPTICS%.raw" %EXT% %nOPTICS% !OPTICSSIZE! %JOURNAL% %TIMESTAMP% -C "$FORWSL/config/%nOPTICS%_fs_config.txt" -D "$FORWSL/rom/%nOPTICS%" %OPTICSLABEL% %OPTICSMOUNT% %OPTICSINODES% %OPTICSUUID% %OPTICSHASH% "$FORWSL/config/%nOPTICS%_file_contexts.txt" && echo.)
+if exist "%OPTICS%" ("%WSL%" "$PWD/bin/linux/mkuserimg_mke2fs.sh" "$FORWSL/rom/%nOPTICS%" "$FORWSL/build/%nOPTICS%.raw" %EXT% %nOPTICS% !OPTICSSIZE! %JOURNAL% %TIMESTAMP% -C "$FORWSL/config/%nOPTICS%_fs_config.txt" -D "$FORWSL/rom/%nOPTICS%" %OPTICSLABEL% %OPTICSMOUNT% %OPTICSINODES% %OPTICSUUID% %OPTICSHASH% "$FORWSL/config/%nOPTICS%_file_contexts.txt" "$FORWSL/config/file_contexts.txt" && echo.)
 if exist "%BUILD%\%nOPTICS%*" ("%BIN%\img2simg" "%BUILD%\%nOPTICS%.raw" "%BUILD%\%nOPTICS%.img" 4096 && del "%BUILD%\%nOPTICS%.raw" >nul && echo  Converting %nOPTICS%.raw Into Sparse %nOPTICS%.img, ...Done && echo.)
 if exist "%BUILD%\%nOPTICS%*" ("%BIN%\lz4" -B6 -f --rm --content-size "%BUILD%\%nOPTICS%.img"  2>nul && echo  Compressing lz4 Image, ...Done)
 %cECHO% {06}&& timeout 15 && goto rebuildmenu
@@ -318,7 +318,7 @@ for /f "skip=11 tokens=3" %%i in (%CONFIG%\prism.txt) do (if not defined PRISMIN
 for /f "skip=40 tokens=4" %%i in (%CONFIG%\prism.txt) do (if not defined PRISMHASH set "PRISMHASH=-S %%i")
 for /f "skip=41 tokens=3" %%i in (%CONFIG%\prism.txt) do (if not defined PRISMSIZE set "PRISMSIZE=%%i")
 %cECHO% {0A}{\n}&& if exist "%CONFIG%\%nPRISM%_fs*" ("%BIN%\fspatch" "%PRISM%" "%CONFIG%\%nPRISM%_fs_config.txt" && echo.)
-if exist "%PRISM%" ("%WSL%" "$PWD/bin/linux/mkuserimg_mke2fs.sh" "$FORWSL/rom/%nPRISM%" "$FORWSL/build/%nPRISM%.raw" %EXT% %nPRISM% %PRISMSIZE% %JOURNAL% %TIMESTAMP% -C "$FORWSL/config/%nPRISM%_fs_config.txt" -D "$FORWSL/rom/%nPRISM%" %PRISMLABEL% %PRISMMOUNT% %PRISMINODES% %PRISMUUID% %PRISMHASH% "$FORWSL/config/%nPRISM%_file_contexts.txt" && echo.)
+if exist "%PRISM%" ("%WSL%" "$PWD/bin/linux/mkuserimg_mke2fs.sh" "$FORWSL/rom/%nPRISM%" "$FORWSL/build/%nPRISM%.raw" %EXT% %nPRISM% %PRISMSIZE% %JOURNAL% %TIMESTAMP% -C "$FORWSL/config/%nPRISM%_fs_config.txt" -D "$FORWSL/rom/%nPRISM%" %PRISMLABEL% %PRISMMOUNT% %PRISMINODES% %PRISMUUID% %PRISMHASH% "$FORWSL/config/%nPRISM%_file_contexts.txt" "$FORWSL/config/file_contexts.txt" && echo.)
 if exist "%BUILD%\%nPRISM%*" ("%BIN%\img2simg" "%BUILD%\%nPRISM%.raw" "%BUILD%\%nPRISM%.img" 4096 && del "%BUILD%\%nPRISM%.raw" >nul && echo  Converting %nPRISM%.raw Into Sparse %nPRISM%.img done... && echo.)
 if exist "%BUILD%\%nPRISM%*" ("%BIN%\lz4" -B6 -f --rm --content-size "%BUILD%\%nPRISM%.img"  2>nul && echo  Compressing lz4 Image, ...Done)
 %cECHO% {06}&& timeout 15 && goto rebuildmenu
@@ -335,7 +335,7 @@ for /f "skip=11 tokens=3" %%i in (%CONFIG%\product.txt) do (if not defined PRODU
 for /f "skip=40 tokens=4" %%i in (%CONFIG%\product.txt) do (if not defined PRODUCTHASH set "PRODUCTHASH=-S %%i")
 for /f "skip=41 tokens=3" %%i in (%CONFIG%\product.txt) do (if not defined PRODUCTSIZE set "PRODUCTSIZE=%%i")
 %cECHO% {0A}{\n}&& if exist "%CONFIG%\%nPRODUCT%_fs*" ("%BIN%\fspatch" "%PRODUCT%" "%CONFIG%\%nPRODUCT%_fs_config.txt" && echo.)
-if exist "%PRODUCT%" ("%WSL%" "$PWD/bin/linux/mkuserimg_mke2fs.sh" "$FORWSL/rom/%nPRODUCT%" "$FORWSL/build/%nPRODUCT%.img" %EXT% %nPRODUCT% %PRODUCTSIZE% %JOURNAL% %TIMESTAMP% -C "$FORWSL/config/%nPRODUCT%_fs_config.txt" -D "$FORWSL/rom/%nPRODUCT%" %PRODUCTLABEL% %PRODUCTMOUNT% %PRODUCTINODES% %PRODUCTUUID% %PRODUCTHASH% "$FORWSL/config/%nPRODUCT%_file_contexts.txt")
+if exist "%PRODUCT%" ("%WSL%" "$PWD/bin/linux/mkuserimg_mke2fs.sh" "$FORWSL/rom/%nPRODUCT%" "$FORWSL/build/%nPRODUCT%.img" %EXT% %nPRODUCT% %PRODUCTSIZE% %JOURNAL% %TIMESTAMP% -C "$FORWSL/config/%nPRODUCT%_fs_config.txt" -D "$FORWSL/rom/%nPRODUCT%" %PRODUCTLABEL% %PRODUCTMOUNT% %PRODUCTINODES% %PRODUCTUUID% %PRODUCTHASH% "$FORWSL/config/%nPRODUCT%_file_contexts.txt" "$FORWSL/config/file_contexts.txt")
 %cECHO% {06}&& timeout 15 && goto rebuildmenu
 :system
 mode con lines=21 cols=76 && cls
@@ -356,7 +356,7 @@ for /f "skip=41 tokens=3" %%i in (%CONFIG%\system.txt) do (if not defined SYSTEM
 if exist "%BUILD%\%nSYSTEM%*" (echo / 0000 0000 00755)>"%CONFIG%\%nSYSTEM%_root_fs_config.txt" && if exist "%BUILD%\%nSYSTEM%*" ("%BIN%\fs_generator" "%BUILD%\%nSYSTEM%.img")>>"%CONFIG%\%nSYSTEM%_root_fs_config.txt"
 %cECHO% {06}&& timeout 15 && goto rebuildmenu
 :vendor
-mode con lines=23 cols=76 && cls
+mode con lines=21 cols=76 && cls
 goto vendorsymlink
 :resumevendor
 cls
@@ -371,7 +371,7 @@ for /f "skip=11 tokens=3" %%i in (%CONFIG%\vendor.txt) do (if not defined VENDOR
 for /f "skip=40 tokens=4" %%i in (%CONFIG%\vendor.txt) do (if not defined VENDORHASH set "VENDORHASH=-S %%i")
 for /f "skip=41 tokens=3" %%i in (%CONFIG%\vendor.txt) do (if not defined VENDORSIZE set "VENDORSIZE=%%i")
 %cECHO% {0A}{\n}&& if exist "%CONFIG%\%nVENDOR%_fs*" ("%BIN%\fspatch" "%VENDOR%" "%CONFIG%\%nVENDOR%_fs_config.txt" && echo.)
-if exist "%VENDOR%" ("%WSL%" "$PWD/bin/linux/mkuserimg_mke2fs.sh" "$FORWSL/rom/%nVENDOR%" "$FORWSL/build/%nVENDOR%.img" %EXT% %nVENDOR% %VENDORSIZE% %JOURNAL% %TIMESTAMP% -C "$FORWSL/config/%nVENDOR%_fs_config.txt" -D "$FORWSL/rom/%nVENDOR%" %VENDORLABEL% %VENDORMOUNT% %VENDORINODES% %VENDORUUID% %VENDORHASH% "$FORWSL/config/%nVENDOR%_file_contexts.txt")
+if exist "%VENDOR%" ("%WSL%" "$PWD/bin/linux/mkuserimg_mke2fs.sh" "$FORWSL/rom/%nVENDOR%" "$FORWSL/build/%nVENDOR%.img" %EXT% %nVENDOR% %VENDORSIZE% %JOURNAL% %TIMESTAMP% -C "$FORWSL/config/%nVENDOR%_fs_config.txt" -D "$FORWSL/rom/%nVENDOR%" %VENDORLABEL% %VENDORMOUNT% %VENDORINODES% %VENDORUUID% %VENDORHASH% "$FORWSL/config/%nVENDOR%_file_contexts.txt" "$FORWSL/config/file_contexts.txt")
 %cECHO% {06}&& timeout 15 && goto rebuildmenu
 :super
 mode con lines=13 cols=76 && cls
