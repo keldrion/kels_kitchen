@@ -158,8 +158,12 @@ if "%errorlevel%" == "5" (goto odin)
 if "%errorlevel%" == "6" (goto mainmenu)
 if "%errorlevel%" == "7" (goto exit)
 :romextract
-for /f %%a in ('dir /b /a /s %WORK%\*.tar 2^>nul') do (goto choose2)
 for /f %%a in ('dir /b /a /s %WORK%\*.md5 2^>nul') do (goto choose2)
+for /f %%a in ('dir /b /a /s %WORK%\*.tar 2^>nul') do (goto choose2)
+for /f %%a in ('dir /b /a /s %WORK%\*.lz4 2^>nul') do (goto choose2)
+for /f %%a in ('dir /b /a /s %WORK%\*.img 2^>nul') do (goto choose2)
+for /f %%a in ('dir /b /a /s %WORK%\*.txt 2^>nul') do (goto choose2)
+for /f %%a in ('dir /b /a /s %WORK%\*.zip 2^>nul') do (goto choose2)
 goto resume
 :choose2
 mode con lines=8 cols=50 && cls
@@ -187,24 +191,10 @@ if exist "%SOURCE%\BL*" (for /f "tokens=1,2 delims=." %%i in ('dir /b %SOURCE%\B
 if exist "%SOURCE%\CP*" (for /f "tokens=1,2 delims=." %%i in ('dir /b %SOURCE%\CP*') do (set "CP1=%%i" && set "CP2=%%j")) && set "CP=!CP1:~0,16!.!CP2!" && move "%SOURCE%\CP*" "%ODIN%\!CP!" >nul
 if exist "%SOURCE%\CSC*" (for /f "tokens=1,2 delims=." %%i in ('dir /b %SOURCE%\CSC*') do (set "CSC_OXM1=%%i" && set "CSC_OXM2=%%j")) && set "CSC_OXM=!CSC_OXM1:~0,21!.!CSC_OXM2!" && move "%SOURCE%\CSC*" "%ODIN%\!CSC_OXM!" >nul
 if exist "%SOURCE%\HOME*" (for /f "tokens=1,2 delims=." %%i in ('dir /b %SOURCE%\HOME*') do (set "HOME_CSC1=%%i" && set "HOME_CSC2=%%j")) && set "HOME_CSC=!HOME_CSC1:~0,26!.!HOME_CSC2!" && move "%SOURCE%\HOME*" "%ODIN%\!HOME_CSC!" >nul
-if exist "%ODIN%\CSC*" (set /a "N+=1")
-if exist "%ODIN%\HOME*" (set /a "N+=1")
-if %N% LSS 2 (set "N=" & goto resume3)
-%cECHO% {06}{\n}
-%cECHO% {0F}    1{08} -{0A} %CSC_OXM%{\n}
-%cECHO% {0F}    2{08} -{#} %HOME_CSC%{\n}
-%cECHO% {\n}{0F}    b{08} -{#} Back To Main Menu{\n}{06}{\n}
-choice /c 12b /n /t 20 /d 1 /m ".  Which CSC Want To Use?:"
-if "%errorlevel%" == "1" (del %ODIN%\%HOME_CSC%)
-if "%errorlevel%" == "2" (del %ODIN%\%CSC_OXM%)
-if "%errorlevel%" == "3" (goto mainmenu)
+if exist "%ODIN%\HOME*" (del "%ODIN%\HOME*")
 :resume3
 if exist "%ODIN%\*.tar" (%cECHO% {0A} Extracting ROM Relevant Images, Plz Be Patient... && "%BIN%\7z" e -bb3 -aos -ax^^!"%ODIN%\BL*" -ax^^!"%ODIN%\CP*" -o"%SOURCE%" "%ODIN%\*.tar" boot* optics* prism* recovery* super* vbmeta.* meta-data\fota* >nul 2>&1)
 if exist "%SOURCE%\boot.*" (move "%SOURCE%\boot.*" "%BUILD%" >nul & move "%SOURCE%\recovery.*" "%BUILD%" >nul & move "%SOURCE%\vbmeta.*" "%BUILD%" >nul)
-if exist "%SOURCE%\fota*" ("%BIN%\7z" e -bb3 -o"%CONFIG%" -aoa "%SOURCE%\fota*" META\*.bin >nul 2>&1 )
-if exist "%CONFIG%\*.bin" ("%BIN%\sefcontext_decompile" -o "%CONFIG%\system_file_contexts" "%CONFIG%\file_contexts.bin")
-if exist "%CONFIG%\*.bin" ("%BIN%\sefcontext_decompile" -o "%CONFIG%\framework_file_contexts" "%CONFIG%\framework_file_contexts.bin")
-if exist "%CONFIG%\*.bin" (type "%CONFIG%\framework_file_contexts">>"%CONFIG%\system_file_contexts" && del "%CONFIG%\*.bin" "%CONFIG%\framework_file_contexts")
 if exist "%SOURCE%\*.lz4" (%cECHO% {0A}{\n}{\n} Decompressing LZ4 Images... && cd "%SOURCE%" && "%BIN%\lz4" -d -f -v -m --rm "*.lz4" >nul 2>&1 && cd "%TOOLS%")
 if exist "%SOURCE%\optics*" (%cECHO% {0A}{\n}{\n} Converting Sparse Images Into Raw Images... && "%BIN%\simg2img" "%SOURCE%\optics.img" "%SOURCE%\optics.raw" && del "%SOURCE%\optics.img")
 if exist "%SOURCE%\prism*" ("%BIN%\simg2img" "%SOURCE%\prism.img" "%SOURCE%\prism.raw" && del "%SOURCE%\prism.img")
@@ -231,17 +221,22 @@ del "%SOURCE%\prism*" "%ROM%\config\*.txt" && move "%ROM%\config\*" "%CONFIG%" >
 if not exist "%PRODUCT%" (mkdir "%PRODUCT%" && fsutil file setCaseSensitiveinfo "%PRODUCT%" enable >nul)
 if exist "%SOURCE%\product*" ( %cECHO% {0A}{\n} Extract Product To ROM Folder... && "%BIN%\imgextractor" "%SOURCE%\product.img" "%ROM%" >nul)
 if exist "%SOURCE%\product*" ("%WSL%" "$PWD/bin/linux/tune2fs" -l "$FORWSL/source/product.img") | findstr /v Overhead >"%CONFIG%\product"
+if exist "%PRODUCT%" (type "%PRODUCT%\etc\selinux\product_file_contexts")>"%CONFIG%\file_contexts.txt"
 for /f "usebackq" %%i in ("%ROM%\config\product_size.txt") do (echo Image Originalsize:       %%i>>"%CONFIG%\product")
 del "%SOURCE%\product*" "%ROM%\config\*.txt" && move "%ROM%\config\*" "%CONFIG%" >nul && echo.
 if not exist "%SYSTEM%" (mkdir "%SYSTEM%" && fsutil file setCaseSensitiveinfo "%SYSTEM%" enable >nul)
 if exist "%SOURCE%\system*" ( %cECHO% {0A}{\n} Extract System To ROM Folder... && "%BIN%\imgextractor" "%SOURCE%\system.img" "%ROM%" >nul)
 if exist "%SOURCE%\system*" ("%WSL%" "$PWD/bin/linux/tune2fs" -l "$FORWSL/source/system.img") | findstr /v Overhead >"%CONFIG%\system"
+if exist "%SYSTEM%" (type "%SYSTEM%\system\etc\selinux\plat_file_contexts")>>"%CONFIG%\file_contexts.txt"
+if exist "%SYSTEM%\system\system_ext" (type "%SYSTEM%\system\system_ext\etc\selinux\system_ext_file_contexts")>>"%CONFIG%\file_contexts.txt"
 for /f "usebackq" %%i in ("%ROM%\config\system_size.txt") do (echo Image Originalsize:       %%i>>"%CONFIG%\system")
 echo / 0000 0000 00755 >"%CONFIG%\system_root_fs_config" && "%BIN%\fs_generator" "%SOURCE%\system.img">>"%CONFIG%\system_root_fs_config"
 del "%SOURCE%\system*" "%ROM%\config\*.txt" && move "%ROM%\config\*" "%CONFIG%" >nul && echo.
 if not exist "%VENDOR%" (mkdir "%VENDOR%" && fsutil file setCaseSensitiveinfo "%VENDOR%" enable >nul)
 if exist "%SOURCE%\vendor*" ( %cECHO% {0A}{\n} Extract Vendor To ROM Folder... && "%BIN%\imgextractor" "%SOURCE%\vendor.img" "%ROM%" >nul)
 if exist "%SOURCE%\vendor*" ("%WSL%" "$PWD/bin/linux/tune2fs" -l "$FORWSL/source/vendor.img") | findstr /v Overhead >"%CONFIG%\vendor"
+if exist "%VENDOR%" (type "%VENDOR%\etc\selinux\vendor_file_contexts")>>"%CONFIG%\file_contexts.txt"
+if exist "%CONFIG%\file_contexts.txt" (copy "%CONFIG%\file_contexts.txt" "%CONFIG%\system_root_file_contexts.txt" >nul)
 for /f "usebackq" %%i in ("%ROM%\config\vendor_size.txt") do (echo Image Originalsize:       %%i>>"%CONFIG%\vendor")
 del "%SOURCE%\vendor*" "%ROM%\config\*.txt" & move "%ROM%\config\*" "%CONFIG%" >nul & rmdir /s /q "%ROM%\config" >nul & ren %CONFIG%\* *.txt && timeout 10 >nul
 :rebuildmenu
@@ -441,7 +436,7 @@ cls
 %cECHO% ###{0F} Uninstalling Bloat Apps                       [Kels_Kitchen_v%VER%]{#} ###{\n}
 echo ###########################################################################
 echo.
-for /f "tokens=* usebackq" %%a in ("%MODS%\debloat_list") do ("%DEL%" %%a)
+for /f "tokens=* usebackq" %%a in ("%MODS%\debloat_list.txt") do ("%DEL%" %%a)
 echo.
 echo Done..
 timeout 2 >nul && goto debloatmenu
@@ -458,7 +453,7 @@ echo Done..
 timeout 2 >nul && goto debloatmenu
 :debloatlist
 cd "%EXE%\notepad"
-start notepad++ "%MODS%\debloat_list"
+start notepad++ "%MODS%\debloat_list.txt"
 cd "%TOOLS%"
 goto debloatmenu
 :deactivatelist
@@ -1596,3 +1591,15 @@ echo ...Bye
 timeout 2 >nul
 endlocal && cls
 cmd.exe
+
+:: if exist "%ODIN%\CSC*" (set /a "N+=1")
+:: if exist "%ODIN%\HOME*" (set /a "N+=1")
+:: if %N% LSS 2 (set "N=" & goto resume3)
+:: %cECHO% {06}{\n}
+:: %cECHO% {0F}    1{08} -{0A} %CSC_OXM%{\n}
+:: %cECHO% {0F}    2{08} -{#} %HOME_CSC%{\n}
+:: %cECHO% {\n}{0F}    b{08} -{#} Back To Main Menu{\n}{06}{\n}
+:: choice /c 12b /n /t 20 /d 1 /m ".  Which CSC Want To Use?:"
+:: if "%errorlevel%" == "1" (del %ODIN%\%HOME_CSC%)
+:: if "%errorlevel%" == "2" (del %ODIN%\%CSC_OXM%)
+:: if "%errorlevel%" == "3" (goto mainmenu)
