@@ -1,0 +1,22 @@
+####################################
+# CUSTOM TWEAKS
+####################################
+debug.performance.tuning=1
+logcat.live=disable
+persist.adb.notify=0
+persist.cust.tel.eons=1
+persist.service.adb.enable=1
+profiler.force_disable_err_rpt=1
+profiler.force_disable_ulog=1
+ring.delay=0
+ro.HOME_APP_ADJ=1
+ro.config.hw_quickpoweron=true
+ro.kernel.android.checkjni=0
+ro.kernel.checkjni=0
+ro.ril.enable.amr.wideband=1
+ro.securestorage.support=false
+ro.security.vaultkeeper.native=0
+ro.telephony.call_ring.delay=0
+wifi.supplicant_scan_interval=180
+wlan.wfd.hdcp=disable
+# end of file
