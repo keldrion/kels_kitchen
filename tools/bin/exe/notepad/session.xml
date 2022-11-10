@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<NotepadPlus>
+    <Session activeView="0">
+        <mainView activeIndex="1">
+            <File firstVisibleLine="300" xOffset="0" scrollWidth="1016" startPos="10922" endPos="10892" selMode="0" offset="0" wrapCount="1" lang="None (Normal Text)" encoding="-1" userReadOnly="no" filename="D:\.android\crb_v3b14\Projects\F926B_CVD2_magisk\ROM\system\system\build.prop" backupFilePath="" originalFileLastModifTimestamp="-1161394405" originalFileLastModifTimestampHigh="30959405" mapFirstVisibleDisplayLine="-1" mapFirstVisibleDocLine="-1" mapLastVisibleDocLine="-1" mapNbLine="-1" mapHigherPos="-1" mapWidth="-1" mapHeight="-1" mapKByteInDoc="512" mapWrapIndentMode="-1" mapIsWrap="no" />
+            <File firstVisibleLine="315" xOffset="0" scrollWidth="664" startPos="10852" endPos="10852" selMode="0" offset="0" wrapCount="1" lang="Batch" encoding="-1" userReadOnly="no" filename="D:\.android\_debloat\debloat_adb.bat" backupFilePath="" originalFileLastModifTimestamp="-1180054928" originalFileLastModifTimestampHigh="30959595" mapFirstVisibleDisplayLine="-1" mapFirstVisibleDocLine="-1" mapLastVisibleDocLine="-1" mapNbLine="-1" mapHigherPos="-1" mapWidth="-1" mapHeight="-1" mapKByteInDoc="512" mapWrapIndentMode="-1" mapIsWrap="no" />
+        </mainView>
+        <subView activeIndex="0" />
+    </Session>
+</NotepadPlus>
